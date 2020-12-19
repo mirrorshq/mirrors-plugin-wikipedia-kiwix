@@ -64,7 +64,7 @@ def _download(cfg, dataDir):
         for la in langIncList:
             cmd += "-f '+ wikipedia_%s_all_*.zim' " % (la)                          # we only download "_all_" category files
     else:
-        cmd += "-f '+ wikipedia_*_all_*.zim' " % (la)                               # we only download "_all_" category files
+        cmd += "-f '+ wikipedia_*_all_*.zim' "                                      # we only download "_all_" category files
     cmd += "-f '- *' "
     cmd += "%s %s" % (rsyncSource, dataDir)
     _Util.shellExec(cmd)

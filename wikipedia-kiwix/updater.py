@@ -17,9 +17,9 @@ def main():
     # download
     _download(cfg, dataDir)
 
-    # generate library.xml
-    libraryFile = os.path.join(stateDir, "library.xml")
-    _generateLibraryXml(dataDir, libraryFile)
+    # generate library.list
+    libraryFile = os.path.join(stateDir, "library.list")
+    _generateLibraryListFile(dataDir, libraryFile)
 
 
 def _download(cfg, dataDir):
@@ -69,7 +69,7 @@ def _download(cfg, dataDir):
     _Util.shellExec(cmd)
 
 
-def _generateLibraryXml(dataDir, libraryFile):
+def _generateLibraryListFile(dataDir, libraryFile):
     # get latest files
     latestFileList = None
     if True:
@@ -81,11 +81,13 @@ def _generateLibraryXml(dataDir, libraryFile):
             if m.group(1) in latestFileDict and latestFileDict[m.group(1)] < m.group(2):
                 latestFileDict[m.group(1)] = m.group(2)
         latestFileList = ["%s_%s.zim" % (k, v) for k, v in latestFileDict.items()]
+        latestFileList.sort()
 
-    # backup old and generate new library.xml
-    if os.path.exists(libraryFile):
-        os.rename(libraryFile, libraryFile + ".bak")
-    _Util.shellExec("/usr/bin/kiwix-manage %s add %s" % (libraryFile, " ".join([os.path.join(dataDir, fn) for fn in latestFileList])))
+    # generate new library.list, atomically
+    with open(libraryFile + ".tmp", "w") as f:
+        for fn in latestFileList:
+            f.write(fn + "\n")
+    os.rename(libraryFile + ".tmp", libraryFile)
 
 
 class _Util:

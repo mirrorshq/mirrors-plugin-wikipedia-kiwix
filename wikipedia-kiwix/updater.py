@@ -25,7 +25,7 @@ def main():
 
 def _download(cfg, dataDir):
     allFileTypes = ["maxi", "mini", "nopic"]
-    rsyncSource = "rsync://download.kiwix.org/download.kiwix.org/zim/wikipedia"
+    rsyncSource = "rsync://download.kiwix.org/download.kiwix.org/zim/wikipedia/"    # trailing slash is neccessary
 
     # "file-type" in config:
     #   wikipedia_ab_all_maxi_2020-11.zim, wikipedia_ab_all_mini_2019-02.zim, wikipedia_ab_all_nopic_2020-11.zim

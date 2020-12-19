@@ -7,6 +7,7 @@ import sys
 import time
 import json
 import subprocess
+import atomicwrites
 
 
 def main():
@@ -24,7 +25,7 @@ def main():
 
 def _download(cfg, dataDir):
     allFileTypes = ["maxi", "mini", "nopic"]
-    rsyncSource = "rsync://download.kiwix.org/zim/wikipedia/"
+    rsyncSource = "rsync://download.kiwix.org/zim/wikipedia"
 
     # "file-type" in config:
     #   wikipedia_ab_all_maxi_2020-11.zim, wikipedia_ab_all_mini_2019-02.zim, wikipedia_ab_all_nopic_2020-11.zim
@@ -83,11 +84,10 @@ def _generateLibraryListFile(dataDir, libraryFile):
         latestFileList = ["%s_%s.zim" % (k, v) for k, v in latestFileDict.items()]
         latestFileList.sort()
 
-    # generate new library.list, atomically
-    with open(libraryFile + ".tmp", "w") as f:
+    # generate new library.list
+    with atomicwrites.atomic_write(libraryFile, overwrite=True) as f:
         for fn in latestFileList:
             f.write(fn + "\n")
-    os.rename(libraryFile + ".tmp", libraryFile)
 
 
 class _Util:

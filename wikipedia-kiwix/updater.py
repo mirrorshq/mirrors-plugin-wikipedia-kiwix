@@ -3,17 +3,16 @@
 
 import os
 import re
-import sys
 import time
-import json
 import subprocess
 import atomicwrites
+import mirrors.plugin
 
 
 def main():
-    cfg = json.loads(sys.argv[1])["config"]
-    stateDir = json.loads(sys.argv[1])["state-directory"]
-    dataDir = json.loads(sys.argv[1])["storage-file"]["data-directory"]
+    cfg = mirrors.plugin.params["config"]
+    stateDir = mirrors.plugin.params["state-directory"]
+    dataDir = mirrors.plugin.params["storage-file"]["data-directory"]
 
     # download
     _download(cfg, dataDir)

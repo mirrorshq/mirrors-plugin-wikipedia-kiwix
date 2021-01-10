@@ -15,19 +15,22 @@ class Main:
         self.cfg = mirrors.plugin.params["config"]
         self.stateDir = mirrors.plugin.params["state-directory"]
         self.dataDir = mirrors.plugin.params["storage-file"]["data-directory"]
+
+        self.rsyncSource = "rsync://download.kiwix.org/download.kiwix.org/zim/wikipedia/"    # trailing slash is neccessary
         self.libraryFile = os.path.join(self.stateDir, "library.list")
 
     def run(self):
         self._download()
         self._generateLibraryListFile()
 
-    def _download(self):
-        rsyncSource = "rsync://download.kiwix.org/download.kiwix.org/zim/wikipedia/"    # trailing slash is neccessary
+    def _getFileList(self):
+        pass
 
+    def _download(self):
         cmd = ""
         cmd += "/usr/bin/rsync -rlptD -z -v --delete --delete-excluded --partial -H "   # we use "-rlptD" insead of "-a" so that the remote user/group is ignored
         cmd += self.__getRsyncFilterArgStr()
-        cmd += " %s %s" % (rsyncSource, self.dataDir)
+        cmd += " %s %s" % (self.rsyncSource, self.dataDir)
         _Util.shellExec(cmd)
 
     def _generateLibraryListFile(self):

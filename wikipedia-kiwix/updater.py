@@ -5,6 +5,7 @@ import os
 import re
 import json
 import time
+import pysvn
 import pathlib
 import tempfile
 import subprocess
@@ -82,7 +83,7 @@ class Main:
             fileList = _Util.shellCall(cmd).split("\n")
 
         # filter file list, only keep the newst if the file likes "wikipedia_ab_all_maxi_2020-11.zim"
-        # FIXME: but this filter would be invalidated when rsync
+        # FIXME: this filter would be invalidated when rsync
         if False:
             prefixDict = dict()
             for fn in fileList:
@@ -206,9 +207,10 @@ class _Util:
 
     @staticmethod
     def githubGetFileContent(user, repo, filepath):
+        url = "https://github.com/%s/%s/trunk/%s" % (user, repo, filepath)
         with _TempCreateFile() as tmpFile:
-            url = "https://github.com/%s/%s/trunk/%s" % (user, repo, filepath)
-            _Util.cmdCall("/usr/bin/svn", "export", "-q", "--force", url, tmpFile)
+            with pysvn.Client() as client:
+                client.export(url, tmpFile)
             return pathlib.Path(tmpFile).read_text()
 
     @staticmethod

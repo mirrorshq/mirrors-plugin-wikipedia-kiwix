@@ -2,9 +2,10 @@
 <mirror-site id="wikipedia-kiwix">
   <name>Wikipedia Mirrored By Kiwix</name>
   <storage type="file"/>
-  <advertiser type="kiwix"/>
   <advertiser type="httpdir"/>
+  <advertiser type="ftp"/>
   <advertiser type="rsync"/>
+  <advertiser type="kiwix"/>
   <initializer>
     <executable>updater.py</executable>
   </initializer>

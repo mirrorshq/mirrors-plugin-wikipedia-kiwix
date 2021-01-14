@@ -53,7 +53,9 @@ class Main:
         try:
             self.rsyncUrl = _Util.pmdbGetMirrors("kiwix", "kiwix", self.country, ["rsync"], 1)
             if len(self.rsyncUrl) > 0:
+                self.rsyncUrl = os.path.join(self.rsyncUrl, "zim/wikipedia/")                  # trailing slash is neccessary
                 self.fileUrlList = _Util.pmdbGetMirrors("kiwix", "kiwix", self.country, ["http", "https", "ftp"])
+                self.fileUrlList = [os.path.join(x, "zim/wikipedia") for x in self.fileUrlList]
                 print("Found:")
                 print("    rsync source: %s" % (self.rsyncUrl))
                 for url in self.fileUrlList:
@@ -80,7 +82,8 @@ class Main:
             fileList = _Util.shellCall(cmd).split("\n")
 
         # filter file list, only keep the newst if the file likes "wikipedia_ab_all_maxi_2020-11.zim"
-        if True:
+        # FIXME: but this filter would be invalidated when rsync
+        if False:
             prefixDict = dict()
             for fn in fileList:
                 m = re.fullmatch("(.*)_([0-9-]+)\\.zim", fn)
@@ -165,11 +168,6 @@ class Main:
             langExcList = self.cfg["exclude-lang"]
         if len(langIncList) > 0 and len(langExcList) > 0:
             raise Exception("\"include-lang\" and \"exclude-lang\" can not co-exist in config")
-
-        # "latest-only" in config:
-        # FIXME: there's no simple way to implment this flag because different zim file has different latest time
-        if "latest-only" in self.cfg:
-            raise Exception("\"latest-only\" in config is not implemented yet")
 
         argStr = " "
         for la in langExcList:

@@ -1,4 +1,4 @@
-plugin=kiwix
+plugin=wikipedia-kiwix
 prefix=/usr
 
 all:

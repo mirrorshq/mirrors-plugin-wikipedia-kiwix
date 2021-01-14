@@ -16,7 +16,6 @@ class Main:
 
     def __init__(self):
         # parameters
-        self.id = mirrors.plugin.params["id"]
         self.cfg = mirrors.plugin.params["config"]
         self.country = mirrors.plugin.params["country"]
         self.stateDir = mirrors.plugin.params["state-directory"]
@@ -35,7 +34,7 @@ class Main:
                 break
             if self._getDownloadSourcePmdb():
                 break
-            self.rsyncUrl = "rsync://download.kiwix.org/download.kiwix.org/%s/" % (self._getPostFix())  # trailing slash is neccessary
+            self.rsyncUrl = "rsync://download.kiwix.org/download.kiwix.org/zim/wikipedia/"    # trailing slash is neccessary
             self.fileUrlList = []
             break
         while True:
@@ -44,14 +43,6 @@ class Main:
                 break
         self._rsync()
         self._generateLibraryListFile()
-
-    def _getPostFix(self):
-        if self.id == "wikipedia-kiwix":
-            return "zim/wikipedia"
-        elif self.id == "stackexchange-kiwix":
-            return "zim/stackexchange"
-        else:
-            assert False
 
     def _getDownloadSourceLibMirror(self):
         # FIXME
@@ -62,9 +53,7 @@ class Main:
         try:
             self.rsyncUrl = _Util.pmdbGetMirrors("kiwix", "kiwix", self.country, ["rsync"], 1)
             if len(self.rsyncUrl) > 0:
-                self.rsyncUrl = os.path.join(self.rsyncUrl, "%s/" % (self._getPostFix()))               # trailing slash is neccessary
                 self.fileUrlList = _Util.pmdbGetMirrors("kiwix", "kiwix", self.country, ["http", "https", "ftp"])
-                self.fileUrlList = [os.path.join(x, self._getPostFix()) for x in self.fileUrlList]
                 print("Found:")
                 print("    rsync source: %s" % (self.rsyncUrl))
                 for url in self.fileUrlList:

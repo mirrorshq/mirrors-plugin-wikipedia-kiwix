@@ -28,9 +28,6 @@ class Main:
         self.rsyncUrl = None
         self.fileUrlList = []
 
-        # file list
-        self.fileList = []
-
     def run(self):
         while True:
             if self._getDownloadSourceLibMirror():
@@ -40,7 +37,10 @@ class Main:
             self.rsyncUrl = "rsync://download.kiwix.org/download.kiwix.org/zim/wikipedia/"    # trailing slash is neccessary
             self.fileUrlList = []
             break
-        self._download()
+        while True:
+            fileList = self._getFileList()
+            if self._download(fileList) == 0:
+                break
         self._rsync()
         self._generateLibraryListFile()
 
@@ -74,7 +74,7 @@ class Main:
         fileList = []
         if True:
             cmd = ""
-            cmd += "/usr/bin/rsync -rlptD --no-motd --list-only "                           # we use "-rlptD" insead of "-a" so that the remote user/group is ignored
+            cmd += "/usr/bin/rsync -rlptD --no-motd --list-only "               # we use "-rlptD" insead of "-a" so that the remote user/group is ignored
             cmd += self.__getRsyncFilterArgStr()
             cmd += " %s" % (self.rsyncUrl)
             fileList = _Util.shellCall(cmd).split("\n")
@@ -99,18 +99,27 @@ class Main:
                     continue
             fileList = fileList2
 
-        # assign to taraget veriable
-        self.fileList = fileList
-        print("Done.")
+        return fileList
 
-    def _download(self):
+    def _download(self, fileList):
         if len(self.fileUrlList) == 0:
-            return
-        # FIXME
+            return 0
+
+        count = 0
+        for fn in fileList:
+            if os.path.exists(os.path.join(self.dataDir, fn)):
+                continue
+            print("Download \"%s\"..." % (fn))
+            _Util.cmdExec("/usr/bin/aria2c", "-d", self.dataDir, *[os.path.join(x, fn) for x in self.fileUrlList])
+            count += 1
+        return count
 
     def _rsync(self):
+        print("Synchronize...")
+
         cmd = ""
-        cmd += "/usr/bin/rsync -rlptD -z -v --delete --delete-excluded --partial -H "   # we use "-rlptD" insead of "-a" so that the remote user/group is ignored
+        cmd += "/usr/bin/rsync -rlptD -z -v --delete-excluded --partial -H "    # we use "-rlptD" insead of "-a" so that the remote user/group is ignored
+                                                                                # we don't use --delete, it's safer
         cmd += self.__getRsyncFilterArgStr()
         cmd += " %s %s" % (self.rsyncUrl, self.dataDir)
         _Util.shellExec(cmd)
@@ -242,6 +251,28 @@ class _Util:
             print(ret.stdout)
             ret.check_returncode()
         return ret.stdout.rstrip()
+
+    @staticmethod
+    def cmdExec(cmd, *kargs):
+        # call command to execute frontend job
+        #
+        # scenario 1, process group receives SIGTERM, SIGINT and SIGHUP:
+        #   * callee must auto-terminate, and cause no side-effect
+        #   * caller must be terminate AFTER child-process, and do neccessary finalization
+        #   * termination information should be printed by callee, not caller
+        # scenario 2, caller receives SIGTERM, SIGINT, SIGHUP:
+        #   * caller should terminate callee, wait callee to stop, do neccessary finalization, print termination information, and be terminated by signal
+        #   * callee does not need to treat this scenario specially
+        # scenario 3, callee receives SIGTERM, SIGINT, SIGHUP:
+        #   * caller detects child-process failure and do appopriate treatment
+        #   * callee should print termination information
+
+        # FIXME, the above condition is not met, FmUtil.shellExec has the same problem
+
+        ret = subprocess.run([cmd] + list(kargs), universal_newlines=True)
+        if ret.returncode > 128:
+            time.sleep(1.0)
+        ret.check_returncode()
 
     @staticmethod
     def shellExec(cmd):

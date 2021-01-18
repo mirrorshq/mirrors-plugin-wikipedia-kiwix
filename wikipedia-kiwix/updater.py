@@ -69,7 +69,7 @@ class Main:
                 return False
         except Exception:
             print("Failed.")
-            raise
+            raise    # FIXME
             return False
 
     def _getFileList(self):

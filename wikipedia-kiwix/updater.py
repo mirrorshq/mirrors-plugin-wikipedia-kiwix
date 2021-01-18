@@ -52,9 +52,10 @@ class Main:
     def _getDownloadSourcePmdb(self):
         print("Get download source from public-mirror-db...")
         try:
-            self.rsyncUrl = _Util.pmdbGetMirrors("kiwix", "kiwix", self.country, ["rsync"], 1)
-            if len(self.rsyncUrl) > 0:
-                self.rsyncUrl = os.path.join(self.rsyncUrl, "zim/wikipedia/")                  # trailing slash is neccessary
+            ret = _Util.pmdbGetMirrors("kiwix", "kiwix", self.country, ["rsync"], 1)
+            if len(ret) > 0:
+                self.rsyncUrl = ret[0]
+                self.rsyncUrl = os.path.join(self.rsyncUrl, "zim/wikipedia/")                 # trailing slash is neccessary
                 self.fileUrlList = _Util.pmdbGetMirrors("kiwix", "kiwix", self.country, ["http", "https", "ftp"])
                 self.fileUrlList = [os.path.join(x, "zim/wikipedia") for x in self.fileUrlList]
                 print("Found:")
@@ -68,6 +69,7 @@ class Main:
                 return False
         except Exception:
             print("Failed.")
+            raise
             return False
 
     def _getFileList(self):
@@ -209,8 +211,7 @@ class _Util:
     def githubGetFileContent(user, repo, filepath):
         url = "https://github.com/%s/%s/trunk/%s" % (user, repo, filepath)
         with _TempCreateFile() as tmpFile:
-            with pysvn.Client() as client:
-                client.export(url, tmpFile)
+            pysvn.Client().export(url, tmpFile, force=True)
             return pathlib.Path(tmpFile).read_text()
 
     @staticmethod

@@ -82,7 +82,11 @@ class Main:
             cmd += "/usr/bin/rsync -rlptD --no-motd --list-only "               # we use "-rlptD" insead of "-a" so that the remote user/group is ignored
             cmd += self.__getRsyncFilterArgStr()
             cmd += " %s" % (self.rsyncUrl)
-            fileList = _Util.shellCall(cmd).split("\n")
+            for item in _Util.shellCall(cmd).split("\n"):
+                # "drwxr-xr-x          2,380 2021/01/18 12:55:02 ./abc" -> "./abc"
+                m = re.fullmatch(r'\S+ +\S+ +\S+ +\S+ +(.*)', item)
+                if m is not None:
+                    fileList.append(m.group(1))
 
         # filter file list, only keep the newst if the file likes "wikipedia_ab_all_maxi_2020-11.zim"
         # FIXME: this filter would be invalidated when rsync

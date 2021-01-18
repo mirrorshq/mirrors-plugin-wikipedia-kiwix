@@ -117,11 +117,15 @@ class Main:
 
         count = 0
         for fn in fileList:
-            if os.path.exists(os.path.join(self.dataDir, fn)):
-                continue
             print("Download \"%s\"..." % (fn))
-            _Util.cmdExec("/usr/bin/aria2c", "-d", self.dataDir, *[os.path.join(x, fn) for x in self.fileUrlList])
-            count += 1
+            try:
+                _Util.cmdExec("/usr/bin/aria2c", "-d", self.dataDir, *[os.path.join(x, fn) for x in self.fileUrlList])
+                count += 1
+            except subprocess.CalledProcessError as e:
+                if e.returncode == 13:
+                    pass                # file already exists
+                else:
+                    raise
         return count
 
     def _rsync(self):

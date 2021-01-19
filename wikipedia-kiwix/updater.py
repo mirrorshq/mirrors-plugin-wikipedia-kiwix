@@ -122,7 +122,7 @@ class Main:
         for fn in fileList:
             print("Download \"%s\"..." % (fn))
             try:
-                _Util.cmdExec("/usr/bin/aria2c", "-d", self.dataDir, *[os.path.join(x, fn) for x in self.fileUrlList])
+                _Util.cmdExec("/usr/bin/aria2c", "--auto-file-renaming=false", "-d", self.dataDir, *[os.path.join(x, fn) for x in self.fileUrlList])
                 count += 1
             except subprocess.CalledProcessError as e:
                 if e.returncode == 13:

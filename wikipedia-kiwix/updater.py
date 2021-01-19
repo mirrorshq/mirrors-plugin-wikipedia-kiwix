@@ -82,6 +82,7 @@ class Main:
             cmd += "/usr/bin/rsync -rlptD --no-motd --list-only "               # we use "-rlptD" insead of "-a" so that the remote user/group is ignored
             cmd += self.__getRsyncFilterArgStr()
             cmd += " %s" % (self.rsyncUrl)
+            print(cmd)
             for item in _Util.shellCall(cmd).split("\n"):
                 # "drwxr-xr-x          2,380 2021/01/18 12:55:02 ./abc" -> "./abc"
                 m = re.fullmatch(r'\S+ +\S+ +\S+ +\S+ +(.*)', item)
@@ -139,6 +140,7 @@ class Main:
                                                                                 # we don't use --delete, it's safer
         cmd += self.__getRsyncFilterArgStr()
         cmd += " %s %s" % (self.rsyncUrl, self.dataDir)
+        print(cmd)
         _Util.shellExec(cmd)
 
     def _generateLibraryListFile(self):

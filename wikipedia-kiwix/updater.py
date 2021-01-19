@@ -85,8 +85,11 @@ class Main:
             for item in _Util.shellCall(cmd).split("\n"):
                 # "drwxr-xr-x          2,380 2021/01/18 12:55:02 ./abc" -> "./abc"
                 m = re.fullmatch(r'\S+ +\S+ +\S+ +\S+ +(.*)', item)
-                if m is not None:
-                    fileList.append(m.group(1))
+                if m is None:
+                    continue
+                if m.group(1) == ".":
+                    continue
+                fileList.append(m.group(1))
 
         # filter file list, only keep the newst if the file likes "wikipedia_ab_all_maxi_2020-11.zim"
         # FIXME: this filter would be invalidated when rsync

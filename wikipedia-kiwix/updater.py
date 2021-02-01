@@ -149,7 +149,7 @@ class Main:
         if True:
             latestFileDict = dict()         # <prefix:time>
             for fn in os.listdir(self.dataDir):
-                m = re.fullmatch("(.*)_([0-9-]+)\\.zim")
+                m = re.fullmatch("(.*)_([0-9-]+)\\.zim", fn)
                 if m is None:
                     continue
                 if m.group(1) in latestFileDict and latestFileDict[m.group(1)] < m.group(2):

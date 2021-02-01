@@ -152,7 +152,7 @@ class Main:
                 m = re.fullmatch("(.*)_([0-9-]+)\\.zim", fn)
                 if m is None:
                     continue
-                if m.group(1) in latestFileDict and latestFileDict[m.group(1)] < m.group(2):
+                if m.group(1) not in latestFileDict or latestFileDict[m.group(1)] < m.group(2):
                     latestFileDict[m.group(1)] = m.group(2)
             latestFileList = ["%s_%s.zim" % (k, v) for k, v in latestFileDict.items()]
             latestFileList.sort()

@@ -187,15 +187,16 @@ class Main:
 
         argStr = " "
         for la in langExcList:
-            argStr += "-f '- wikipedia_%s_*.zim' " % (la)                                  # ignore "exclude-lang"
+            argStr += "-f '- wikipedia_%s_*.zim' " % (la)                # ignore "exclude-lang"
         if fileType != "*":
             for ft in allFileTypes:
-                argStr += "-f '- wikipedia_*_*_%s_*.zim' " % (ft)                          # ignore "file-type"
+                if self.cfg["file-type"] != ft:
+                    argStr += "-f '- wikipedia_*_*_%s_*.zim' " % (ft)    # ignore other "file-type"
         if len(langIncList) > 0:
             for la in langIncList:
-                argStr += "-f '+ wikipedia_%s_all_*.zim' " % (la)                          # we only download "_all_" category files
+                argStr += "-f '+ wikipedia_%s_all_*.zim' " % (la)        # we only download "_all_" category files for specified language
         else:
-            argStr += "-f '+ wikipedia_*_all_*.zim' "                                      # we only download "_all_" category files
+            argStr += "-f '+ wikipedia_*_all_*.zim' "                    # we only download "_all_" category files
         argStr += "-f '- *' "
         return argStr
 
